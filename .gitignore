@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+*.bak
+*.aux
+*.auxlock
+*.bbl
+*.blg
+*.log
+*.synctex.gz
+*.dpth
+*.md5
+*.asv

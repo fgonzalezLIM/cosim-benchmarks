@@ -8,7 +8,9 @@
 %
 % Output
 %  RES:         Structure with results, including:
-%   .c          Subsystem damping [c1; c2]
+%   .t          Timestamps (s)
+%   .x          Positions (m)
+%   .xd         Velocities (m/s)
 
 %                |-> x1             |-> x2
 %   |         |----|             |----|         |

@@ -18,11 +18,17 @@ addpath("../common");
 
 scenario    = 0;        % Simulation case to be solved - available: 0, 1.
 finalT      = 10.0;     % Final time of motion (s)
-H           = 0.01;     % Integration step-size (s)
+H           = 1.0e-3;   % Integration step-size (s)
 
 % Options structure for the integration
 OPTIONS.saveEvery   =   10;     % Storage rate
-OPTIONS.integrator  =   1;      % 1: Forward-Euler
+OPTIONS.integrator  =   2;      % 1: Forward-Euler; 2: Trapezoidal rule
+
+% If using TR, add these integration parameters
+if OPTIONS.integrator == 2
+    OPTIONS.maxIter     = 10;       % Maximum number of iterations
+    OPTIONS.maxError    = 1.0e-7;   % Maximum x increase between correction iterations
+end
 
 % _______________________________________________________________________________ Solution
 SYS = getOscillatorProperties(scenario);

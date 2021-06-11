@@ -7,7 +7,7 @@
 %  finalT:      Final time of motion (s)
 %  OPTIONS:     Structure with simulation options, including:
 %   .saveEvery  Store results every # steps
-%   .integrator Integration formula: 1 = forward Euler
+%   .integrator Integration formula: 1 = forward Euler; 2 = TR
 %  SYS:         Structure with system properties (see getOscillatorProperties.m)
 %
 % Output
@@ -24,16 +24,14 @@
 
 function RES = simulate_monolithic(H, finalT, OPTIONS, SYS)
 
+% Pass integration step-size as OPTIONS parameter
+OPTIONS.H = H;
+
 % ___________________________________________________ System parameters and initial state
 
 % Initial configuration
 x   = SYS.x0;
 xd  = [SYS.xd0(1);SYS.xd0(2)]; 
-
-% Dynamic terms
-SYS.M = [SYS.m(1), 0; 0, SYS.m(2)]; % Mass
-SYS.K = [SYS.k(1), 0; 0, SYS.k(2)]; % Stiffness - does not include coupling
-SYS.C = [SYS.c(1), 0; 0, SYS.c(2)]; % Damping - does not include coupling
 
 % __________________________________________________________________ Pre-allocate storage
 npoints         = round(max(finalT/(H*OPTIONS.saveEvery), 1)); 
@@ -47,7 +45,7 @@ t           = 0.0;
 i           = OPTIONS.saveEvery - 1;
 storeIdx    = 0;
 
-while t < finalT
+while t <= finalT
     
     % Evaluate acceleration
     xdd = evalAcceleration(SYS, x, xd);
@@ -64,7 +62,13 @@ while t < finalT
 	end
     
     % Integrate
-	[x, xd] = integrate_FWE(x, xd, xdd, H);
+    if OPTIONS.integrator == 1
+        [x, xd] = integrate_FWE(x, xd, xdd, OPTIONS);
+    elseif OPTIONS.integrator == 2
+        [x, xd] = integrate_TR(x, xd, xdd, OPTIONS, SYS, @evalAcceleration);
+    else
+        error('Unrecognized integration formula');
+    end
         
     % Increase time
     t = t + H;

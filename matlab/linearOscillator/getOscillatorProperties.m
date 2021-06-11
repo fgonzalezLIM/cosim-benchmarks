@@ -40,6 +40,11 @@ else
     error("Undefined scenario");
 end
 
+% Mass, damping, and stiffness matrices - do not include coupling terms
+SYS.M = [SYS.m(1) 0.0; 0.0 SYS.m(2)];
+SYS.K = [SYS.k(1), 0.0; 0.0, SYS.k(2)];
+SYS.C = [SYS.c(1), 0.0; 0.0, SYS.c(2)];
+
 % _____________________________________________________________________ Initial conditions
 
 % Initial positions and velocities [x1, x2], [xd1, xd2]

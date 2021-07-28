@@ -34,6 +34,10 @@ H2          = 1.0e-3;       % SS2
 dt1         = 1.0e-3;       % SS1     
 dt2         = 1.0e-3;       % SS2
 
+% Co-simulation options
+COSIMOPTS.finalT    = finalT;
+COSIMOPTS.scheme    = 'JacobiSR';   % JacobiSR, JacobiMR
+
 % _____________________________________________________________ Create co-simulation units
 
 % Options for the definition of the subsystems
@@ -52,8 +56,8 @@ OPT2.maxIter    = 10;
 OPT2.maxError   = 1.0e-9;
 
 % The input/output of these may be either force ('F') or positions and velocities ('S')
-ss1 = mass_ss('SS1', 1, 'S', 'S', OPT1);     % Number, input, output, options
-ss2 = mass_ss('SS2', 2, 'S', 'S', OPT2);     % Number, input, output, options
+ss1 = mass_ss('SS1', 1, 'S', 'F', OPT1);     % Number, input, output, options
+ss2 = mass_ss('SS2', 2, 'F', 'S', OPT2);     % Number, input, output, options
 
 % Manager creation
 MANOPT.H1           = H1;
@@ -61,10 +65,6 @@ MANOPT.H2           = H2;
 MANOPT.saveEvery    = saveEvery;
 MANOPT.reportEvery  = round(reportEvery/H);
 MGR                 = managerCreate(H, MANOPT);
-
-% Co-simulation options
-COSIMOPTS.finalT    = finalT;
-COSIMOPTS.scheme    = 'JacobiSR';
 
 % _________________________________________________________________________ Initialization
 
@@ -88,9 +88,17 @@ ss2.initialize(0.0);
 % Simulate
 
 if (strcmp(COSIMOPTS.scheme,'JacobiSR') == true )
+    
+    assert(H==H1, "Single-rate execution requires matching step-sizes.")
+    assert(H==H2, "Single-rate execution requires matching step-sizes.")
+    
     tic % Explicit Jacobi, single rate
     [MGR, ss1, ss2] = simulate_jacobi_SR(MGR, ss1, ss2, COSIMOPTS);
     toc
+elseif (strcmp(COSIMOPTS.scheme,'JacobiMR') == true )
+    tic % Explicit Jacobi, multi-rate
+    [MGR, ss1, ss2] = simulate_jacobi_MR(MGR, ss1, ss2, COSIMOPTS);
+    toc   
 else
     error('Unrecognized co-simulation scheme');
 end

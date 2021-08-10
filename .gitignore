@@ -41,3 +41,4 @@
 *.md5
 *.asv
 *.dep
+doc/*.pdf

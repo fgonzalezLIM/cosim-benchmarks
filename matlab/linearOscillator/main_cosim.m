@@ -60,8 +60,10 @@ ss1 = mass_ss('SS1', 1, 'S', 'F', OPT1);     % Number, input, output, options
 ss2 = mass_ss('SS2', 2, 'F', 'S', OPT2);     % Number, input, output, options
 
 % Manager creation
-MANOPT.H1           = H1;
+MANOPT.H1           = H1;   % Step-size
 MANOPT.H2           = H2;
+MANOPT.order1       = 0;    % Input extrapolation order (0,1,2)
+MANOPT.order2       = 0;
 MANOPT.saveEvery    = saveEvery;
 MANOPT.reportEvery  = round(reportEvery/H);
 MGR                 = managerCreate(H, MANOPT);
@@ -87,16 +89,16 @@ ss2.initialize(0.0);
 
 % Simulate
 
-if (strcmp(COSIMOPTS.scheme,'JacobiSR') == true )
+if (strcmp(COSIMOPTS.scheme,'JacobiSR') == true )       % Explicit Jacobi, single rate
     
     assert(H==H1, "Single-rate execution requires matching step-sizes.")
     assert(H==H2, "Single-rate execution requires matching step-sizes.")
     
-    tic % Explicit Jacobi, single rate
+    tic 
     [MGR, ss1, ss2] = simulate_jacobi_SR(MGR, ss1, ss2, COSIMOPTS);
     toc
-elseif (strcmp(COSIMOPTS.scheme,'JacobiMR') == true )
-    tic % Explicit Jacobi, multi-rate
+elseif (strcmp(COSIMOPTS.scheme,'JacobiMR') == true )   % Explicit Jacobi, multi-rate
+    tic 
     [MGR, ss1, ss2] = simulate_jacobi_MR(MGR, ss1, ss2, COSIMOPTS);
     toc   
 else

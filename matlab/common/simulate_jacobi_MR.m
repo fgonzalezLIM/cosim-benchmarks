@@ -33,24 +33,24 @@ while t < OPT.finalT
     end
     
     % Exchange coupling variables and call manager
+    % In matching grids, these are always available at communication points
     y1 = ss1.readOutputs;
     y2 = ss2.readOutputs;
-    
-    % This function is case-dependent, and should be defined by the user
     MGR = managerEval(MGR, y1, y2, t);
-    
-    ss1.setInputs(MGR.uEx1);
-    ss2.setInputs(MGR.uEx2);
     
     % Increase goal time
     t = t + MGR.H;
     
     % Advance integrations
     while (t1 < t)
+        MGR = managerEval(MGR, y1, y2, t1);
+        ss1.setInputs(MGR.uEx1);
         t1 = t1 + MGR.H1;
         doStep(ss1, t1);
     end
     while (t2 < t)
+        MGR = managerEval(MGR, y1, y2, t2);
+        ss2.setInputs(MGR.uEx2);
         t2 = t2 + MGR.H2;
         doStep(ss2, t2);
     end
